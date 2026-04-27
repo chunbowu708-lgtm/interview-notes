@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高端招聘面试笔记 · Seed / MiniMax</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        cream: '#FAF9F6',
+        warm: '#F5F3EE',
+        burnt: { 50:'#FFF7ED', 100:'#FFEDD5', 200:'#FED7AA', 300:'#FDBA74', 400:'#FB923C', 500:'#F97316', 600:'#EA580C', 700:'#C2410C', 800:'#9A3412', 900:'#7C2D12' },
+        sage: { 50:'#F7FEE7', 100:'#ECFCCB', 200:'#D9F99D', 300:'#BEF264', 400:'#A3E635', 500:'#84CC16', 600:'#65A30D', 700:'#4D7C0F', 800:'#3F6212', 900:'#365314' },
+        stone: { 50:'#FAFAF9', 100:'#F5F5F4', 150:'#EEEEE C', 200:'#E7E5E4', 300:'#D6D3D1', 400:'#A8A29E', 500:'#78716C', 600:'#57534E', 700:'#44403C', 800:'#292524', 900:'#1C1917' }
+      },
+      fontFamily: {
+        display: ['Syne', 'PingFang SC', 'Microsoft YaHei', 'sans-serif'],
+        body: ['DM Sans', 'PingFang SC', 'Microsoft YaHei', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #FAF9F6 0%, #F5F3EE 50%, #FAF9F6 100%);
+    min-height: 100vh;
+    color: #1C1917;
+  }
+  /* Paper grain texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+  /* Bento Grid */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+  @media (max-width: 1024px) {
+    .bento-grid { grid-template-columns: repeat(6, 1fr); gap: 16px; padding: 0 16px 40px; }
+  }
+  @media (max-width: 640px) {
+    .bento-grid { grid-template-columns: 1fr; gap: 14px; padding: 0 12px 32px; }
+  }
+  .col-12 { grid-column: span 12; }
+  .col-8  { grid-column: span 8; }
+  .col-6  { grid-column: span 6; }
+  .col-4  { grid-column: span 4; }
+  .col-3  { grid-column: span 3; }
+  @media (max-width: 1024px) {
+    .col-8, .col-6 { grid-column: span 6; }
+    .col-4, .col-3 { grid-column: span 6; }
+  }
+  @media (max-width: 640px) {
+    .col-12, .col-8, .col-6, .col-4, .col-3 { grid-column: span 1; }
+  }
+  /* Card base */
+  .bento-card {
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 24px;
+    padding: 28px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .bento-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    opacity: 0;
+    background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(194,65,12,0.06), transparent 40%);
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .bento-card:hover::before { opacity: 1; }
+  .bento-card:hover {
+    box-shadow: 0 0 40px rgba(194,65,12,0.08), 0 8px 32px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+  }
+  /* Hero card special */
+  .hero-card {
+    background: linear-gradient(135deg, rgba(255,247,237,0.9) 0%, rgba(255,237,213,0.7) 40%, rgba(247,254,231,0.6) 100%);
+    border: 1px solid rgba(194,65,12,0.08);
+    border-radius: 28px;
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(251,146,60,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Stagger */
+  .reveal:nth-child(1) { transition-delay: 0ms; }
+  .reveal:nth-child(2) { transition-delay: 60ms; }
+  .reveal:nth-child(3) { transition-delay: 120ms; }
+  .reveal:nth-child(4) { transition-delay: 180ms; }
+  .reveal:nth-child(5) { transition-delay: 240ms; }
+  .reveal:nth-child(6) { transition-delay: 300ms; }
+  .reveal:nth-child(7) { transition-delay: 360ms; }
+  .reveal:nth-child(8) { transition-delay: 420ms; }
+  /* Section title */
+  .section-title {
+    font-family: 'Syne', 'PingFang SC', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #C2410C;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  /* Mini card inside bento */
+  .mini-card {
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(0,0,0,0.04);
+    border-radius: 14px;
+    padding: 14px 16px;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+  .mini-card:hover {
+    background: rgba(255,255,255,0.8);
+    border-color: rgba(194,65,12,0.12);
+    box-shadow: 0 2px 12px rgba(194,65,12,0.06);
+  }
+  /* Tab system */
+  .tab-btn {
+    padding: 8px 18px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #78716C;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .tab-btn:hover { color: #C2410C; background: rgba(194,65,12,0.04); }
+  .tab-btn.active {
+    color: #C2410C;
+    background: rgba(194,65,12,0.08);
+    border-color: rgba(194,65,12,0.15);
+    font-weight: 600;
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeTab 0.3s ease; }
+  @keyframes fadeTab { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  /* Accordion */
+  .accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    border: 1px solid transparent;
+  }
+  .accordion-header:hover {
+    background: rgba(194,65,12,0.03);
+    border-color: rgba(194,65,12,0.06);
+  }
+  .accordion-header .chevron {
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    color: #A8A29E;
+  }
+  .accordion-header.open .chevron { transform: rotate(180deg); color: #C2410C; }
+  .accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+    padding: 0 16px;
+  }
+  .accordion-body.open {
+    max-height: 3000px;
+    padding: 0 16px 16px;
+  }
+  /* Copy button */
+  .copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #78716C;
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.06);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .copy-btn:hover { color: #C2410C; background: rgba(194,65,12,0.06); border-color: rgba(194,65,12,0.15); }
+  .copy-btn.copied { color: #4D7C0F; background: rgba(77,124,15,0.08); border-color: rgba(77,124,15,0.15); }
+  /* Tag pill */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  /* Number badge */
+  .num-badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+  /* Quote block */
+  .quote-block {
+    background: rgba(194,65,12,0.03);
+    border-left: 3px solid rgba(194,65,12,0.2);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    margin: 8px 0;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: #44403C;
+    position: relative;
+  }
+  .quote-block .copy-btn { position: absolute; top: 8px; right: 8px; }
+  /* Warning box */
+  .warning-box {
+    background: rgba(190,18,60,0.04);
+    border: 1px solid rgba(190,18,60,0.1);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: #9A3412;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  /* Flow step */
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .flow-step:last-child { border-bottom: none; }
+  .flow-step .step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #C2410C, #EA580C);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  /* Pain point card */
+  .pain-card {
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(0,0,0,0.04);
+    border-radius: 14px;
+    padding: 16px;
+    transition: all 0.3s ease;
+  }
+  .pain-card:hover {
+    border-color: rgba(190,18,60,0.12);
+    box-shadow: 0 2px 12px rgba(190,18,60,0.05);
+  }
+  /* Case card */
+  .case-card {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .case-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+  .case-header {
+    padding: 20px 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: background 0.3s ease;
+  }
+  .case-header:hover { background: rgba(194,65,12,0.02); }
+  .case-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .case-body.open { max-height: 5000px; }
+  .case-body-inner { padding: 0 24px 24px; }
+  /* Golden rule */
+  .rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .rule-item:last-child { border-bottom: none; }
+  /* Smooth scroll */
+  html { scroll-behavior: smooth; }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+  /* Nav */
+  .top-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(250,249,246,0.8);
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    padding: 12px 0;
+  }
+  .nav-link {
+    font-size: 0.82rem;
+    color: #78716C;
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .nav-link:hover { color: #C2410C; background: rgba(194,65,12,0.05); }
+</style>
+</head>
+<body class="antialiased">
+
+<!-- Top Nav -->
+<nav class="top-nav">
+  <div style="max-width:1400px; margin:0 auto; padding:0 24px; display:flex; gap:6px; overflow-x:auto; align-items:center;">
+    <span style="font-family:'Syne',sans-serif; font-weight:800; font-size:0.9rem; color:#C2410C; margin-right:12px;">Interview Notes</span>
+    <a href="#competency" class="nav-link">核心能力</a>
+    <a href="#vocab" class="nav-link">词汇速查</a>
+    <a href="#templates" class="nav-link">回答模板</a>
+    <a href="#workflow" class="nav-link">工作流程</a>
+    <a href="#painpoints" class="nav-link">痛点</a>
+    <a href="#cases" class="nav-link">情景Case</a>
+    <a href="#rules" class="nav-link">黄金法则</a>
+  </div>
+</nav>
+
+<!-- Bento Grid Container -->
+<div class="bento-grid" style="padding-top:32px;">
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <div class="col-12 reveal hero-card" style="position:relative; z-index:1;">
+    <div style="position:relative; z-index:1;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="font-family:'Syne',sans-serif; font-size:0.75rem; font-weight:600; color:#C2410C; letter-spacing:0.05em; text-transform:uppercase;">ByteDance Seed / MiniMax</span>
+        <span style="width:4px; height:4px; border-radius:50%; background:#C2410C; opacity:0.4;"></span>
+        <span style="font-size:0.75rem; color:#78716C;">Interview Prep</span>
+      </div>
+      <h1 style="font-family:'Syne','PingFang SC',sans-serif; font-weight:800; font-size:clamp(1.8rem,4vw,3rem); line-height:1.15; color:#1C1917; margin-bottom:12px;">
+        高端AI招聘<br>
+        <span style="background:linear-gradient(135deg,#C2410C,#EA580C); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">面试学习笔记</span>
+      </h1>
+      <p style="font-size:1rem; color:#57534E; max-width:600px; line-height:1.7; margin-bottom:20px;">
+        7大核心能力维度 · 30+专业词汇 · 7套回答框架 · 5大情景Case高分话术<br>
+        <span style="color:#A8A29E; font-size:0.85rem;">聚焦「懂业务型招聘者」，非通用HR执行岗</span>
+      </p>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <span class="tag" style="background:rgba(194,65,12,0.08); color:#C2410C;">行业认知</span>
+        <span class="tag" style="background:rgba(77,124,15,0.08); color:#4D7C0F;">人才Mapping</span>
+        <span class="tag" style="background:rgba(14,116,144,0.08); color:#0E7490;">需求拆解</span>
+        <span class="tag" style="background:rgba(194,65,12,0.08); color:#C2410C;">Sourcing触达</span>
+        <span class="tag" style="background:rgba(77,124,15,0.08); color:#4D7C0F;">问题解决</span>
+        <span class="tag" style="background:rgba(14,116,144,0.08); color:#0E7490;">项目闭环</span>
+        <span class="tag" style="background:rgba(194,65,12,0.08); color:#C2410C;">自驱学习</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 7大核心能力 ═══════════════ -->
+  <div id="competency" class="col-8 reveal bento-card" style="grid-row: span 2;">
+    <div class="section-title">
+      <span class="icon" style="background:rgba(194,65,12,0.1); color:#C2410C;">◆</span>
+      7大核心能力维度
+    </div>
+    <p style="font-size:0.82rem; color:#78716C; margin-bottom:16px;">所有面试题都围绕这7个维度展开，每道题都在考察你能否适配「AI领域高端招聘」的特殊场景</p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:12px;">
+
+      <div class="mini-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C;">1</span>
+          <strong style="font-size:0.9rem;">行业 & 业务认知</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">能否快速理解AI行业、公司业务，看懂「业务要的好人才到底是什么」</p>
+        <div style="margin-top:8px; display:flex; gap:4px; flex-wrap:wrap;">
+          <span class="tag" style="background:rgba(194,65,12,0.06); color:#C2410C; font-size:0.72rem;">seed团队了解</span>
+          <span class="tag" style="background:rgba(194,65,12,0.06); color:#C2410C; font-size:0.72rem;">AI赛道判断</span>
+        </div>
+      </div>
+
+      <div class="mini-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span class="num-badge" style="background:rgba(77,124,15,0.1); color:#4D7C0F;">2</span>
+          <strong style="font-size:0.9rem;">人才识别 & Mapping</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">从市场里挖金子的能力：定位、梳理、判断目标人才，而非刷简历筛关键词</p>
+        <div style="margin-top:8px; display:flex; gap:4px; flex-wrap:wrap;">
+          <span class="tag" style="background:rgba(77,124,15,0.06); color:#4D7C0F; font-size:0.72rem;">头部人才定位</span>
+          <span class="tag" style="background:rgba(77,124,15,0.06); color:#4D7C0F; font-size:0.72rem;">组织梳理</span>
+        </div>
+      </div>
+
+      <div class="mini-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span class="num-badge" style="background:rgba(14,116,144,0.1); color:#0E7490;">3</span>
+          <strong style="font-size:0.9rem;">需求拆解 & 画像精细化</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">听懂业务「黑话」，把模糊需求转化为可落地的精准招聘标准</p>
+        <div style="margin-top:8px; display:flex; gap:4px; flex-wrap:wrap;">
+          <span class="tag" style="background:rgba(14,116,144,0.06); color:#0E7490; font-size:0.72rem;">模糊→精准</span>
+          <span class="tag" style="background:rgba(14,116,144,0.06); color:#0E7490; font-size:0.72rem;">业务对齐</span>
+        </div>
+      </div>
+
+      <div class="mini-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C;">4</span>
+          <strong style="font-size:0.9rem;">Sourcing & 触达转化</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">搞定「被动顶级人才」：找到人、聊下来、转化、打赢竞对</p>
+        <div style="margin-top:8px; display:flex; gap:4px; flex-wrap:wrap;">
+          <span class="tag" style="background:rgba(194,65,12,0.06); color:#C2410C; font-size:0.72rem;">被动候选人</span>
+          <span class="tag" style="background:rgba(194,65,12,0.06); color:#C2410C; font-size:0.72rem;">竞对PK</span>
+        </div>
+      </div>
+
+      <div class="mini-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span class="num-badge" style="background:rgba(77,124,15,0.1); color:#4D7C0F;">5</span>
+          <strong style="font-size:0.9rem;">场景化问题解决</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">面对招聘困境的抗压能力、破局思路，不是只会说「我再找找」</p>
+        <div style="margin-top:8px; display:flex; gap:4px; flex-wrap:wrap;">
+          <span class="tag" style="background:rgba(77,124,15,0.06); color:#4D7C0F; font-size:0.72rem;">根因拆解</span>
+          <span class="tag" style="background:rgba(77,124,15,0.06); color:#4D7C0F; font-size:0.72rem;">分层破局</span>
+        </div>
+      </div>
+
+      <div class="mini-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span class="num-badge" style="background:rgba(14,116,144,0.1); color:#0E7490;">6</span>
+          <strong style="font-size:0.9rem;">项目闭环 & 复盘</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">完整的招聘项目闭环（需求→落地→结果），能复盘沉淀经验</p>
+        <div style="margin-top:8px; display:flex; gap:4px; flex-wrap:wrap;">
+          <span class="tag" style="background:rgba(14,116,144,0.06); color:#0E7490; font-size:0.72rem;">STAR表达</span>
+          <span class="tag" style="background:rgba(14,116,144,0.06); color:#0E7490; font-size:0.72rem;">经验沉淀</span>
+        </div>
+      </div>
+
+      <div class="mini-card" style="grid-column: span 2;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C;">7</span>
+          <strong style="font-size:0.9rem;">自驱 & 学习提效</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">能否快速适应AI新领域，用工具/方法提升效率，而非墨守成规。会用AI工具提效是加分项</p>
+        <div style="margin-top:8px; display:flex; gap:4px; flex-wrap:wrap;">
+          <span class="tag" style="background:rgba(194,65,12,0.06); color:#C2410C; font-size:0.72rem;">快速学习</span>
+          <span class="tag" style="background:rgba(194,65,12,0.06); color:#C2410C; font-size:0.72rem;">AI工具应用</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 专业词汇速查 ═══════════════ -->
+  <div id="vocab" class="col-4 reveal bento-card">
+    <div class="section-title">
+      <span class="icon" style="background:rgba(77,124,15,0.1); color:#4D7C0F;">◈</span>
+      专业词汇速查
+    </div>
+    <!-- Tabs -->
+    <div style="display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;">
+      <button class="tab-btn active" onclick="switchTab(event, 'vocab-tab1')">高端招聘</button>
+      <button class="tab-btn" onclick="switchTab(event, 'vocab-tab2')">招聘流程</button>
+      <button class="tab-btn" onclick="switchTab(event, 'vocab-tab3')">AI行业</button>
+    </div>
+
+    <div id="vocab-tab1" class="tab-content active">
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(194,65,12,0.08); color:#C2410C; flex-shrink:0; min-width:fit-content;">seed/top seed</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">字节顶级人才招聘团队，聚焦AI等前沿领域顶尖人才挖掘</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(194,65,12,0.08); color:#C2410C; flex-shrink:0; min-width:fit-content;">mapping</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">系统梳理目标赛道/公司的组织架构、核心人才名单、能力画像、薪酬范围，形成完整人才全景图</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(194,65,12,0.08); color:#C2410C; flex-shrink:0; min-width:fit-content;">sourcing</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">主动寻源，从市场上挖掘被动候选人（没在找工作的大牛）</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(194,65,12,0.08); color:#C2410C; flex-shrink:0; min-width:fit-content;">人才保温</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">对暂时无法入职的优质候选人长期维护关系，待后续合适机会转化</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(194,65,12,0.08); color:#C2410C; flex-shrink:0; min-width:fit-content;">人才画像</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">基于业务需求拆解的候选人全维度标准：硬技能、软技能、经验、动机</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(194,65,12,0.08); color:#C2410C; flex-shrink:0; min-width:fit-content;">HC / offer / 薪酬PK</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">HC=招聘编制；offer=录用通知；薪酬PK=和竞对争抢人才时的综合方案博弈</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="vocab-tab2" class="tab-content">
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(14,116,144,0.08); color:#0E7490; flex-shrink:0; min-width:fit-content;">一面/二面/HRBP面</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">初面(基础能力)→终面(核心适配)→HRBP面(意向/价值观)</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(14,116,144,0.08); color:#0E7490; flex-shrink:0; min-width:fit-content;">pending / 泡池子</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">pending=流程停滞；泡池子=简历进人才池未进入面试</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(14,116,144,0.08); color:#0E7490; flex-shrink:0; min-width:fit-content;">内推</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">内部推荐，高端招聘最高效渠道，信任度远高于陌生投递</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(14,116,144,0.08); color:#0E7490; flex-shrink:0; min-width:fit-content;">校招 / 社招</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">校招面向应届生，社招面向有经验的职场人</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(14,116,144,0.08); color:#0E7490; flex-shrink:0; min-width:fit-content;">绿通 / 转正答辩</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">绿通=顶尖候选人免部分面试；转正答辩=实习生转正考核</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(14,116,144,0.08); color:#0E7490; flex-shrink:0; min-width:fit-content;">HRBP / COE</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">HRBP=嵌入业务团队的HR伙伴；COE=HR专业方案设计中台</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="vocab-tab3" class="tab-content">
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(77,124,15,0.08); color:#4D7C0F; flex-shrink:0; min-width:fit-content;">算法招聘</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">AI算法工程师招聘，方向含大模型、CV、NLP、post training等</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(77,124,15,0.08); color:#4D7C0F; flex-shrink:0; min-width:fit-content;">post training</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">大模型后训练，包括SFT监督微调、RLHF人类反馈强化学习</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(77,124,15,0.08); color:#4D7C0F; flex-shrink:0; min-width:fit-content;">顶会</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">NeurIPS/ICML/ICLR/CVPR等，顶会一作是判断顶尖人才的核心标准</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:flex-start;">
+          <span class="tag" style="background:rgba(77,124,15,0.08); color:#4D7C0F; flex-shrink:0; min-width:fit-content;">AI Agent / 多模态</span>
+          <span style="font-size:0.8rem; color:#57534E; line-height:1.5;">AI赛道核心方向，面试考察对赛道趋势的认知和人才匹配能力</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 回答框架模板 ═══════════════ -->
+  <div id="templates" class="col-8 reveal bento-card">
+    <div class="section-title">
+      <span class="icon" style="background:rgba(14,116,144,0.1); color:#0E7490;">◇</span>
+      无经验回答框架模板
+      <span style="font-size:0.75rem; color:#A8A29E; font-weight:400; margin-left:auto;">点击展开详细话术</span>
+    </div>
+    <p style="font-size:0.82rem; color:#78716C; margin-bottom:12px;">没HR经验≠没能力。把过往经历往岗位核心能力上迁移，用「STAR+业务视角」表达</p>
+
+    <!-- Accordion items -->
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C;">1</span>
+          <strong style="font-size:0.88rem;">行业 & 业务认知</strong>
+        </div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="accordion-body">
+        <p style="font-size:0.82rem; color:#78716C; margin-bottom:8px;"><strong style="color:#C2410C;">回复核心：</strong>体现「主动做功课 + 能把行业和招聘联系起来」</p>
+        <div class="quote-block" id="quote-1">
+          <button class="copy-btn" onclick="copyQuote('quote-1', this)">复制</button>
+          我提前了解了字节seed团队的业务方向，主要是AI基础模型和创业人才挖掘，也梳理了近期AI赛道的动态。我个人比较看好AI Agent和多模态应用赛道，比如myshell做的AI交互产品，核心竞争力是场景落地和用户反馈，这类公司的人才核心是懂场景的算法+产品结合的复合型人才。我之所以关注这些，是因为我知道咱们要招的是AI领域的高端人才，提前梳理赛道玩家和他们的核心能力要求，后续和业务对齐、识别人才的时候能更快get到重点。
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="num-badge" style="background:rgba(77,124,15,0.1); color:#4D7C0F;">2</span>
+          <strong style="font-size:0.88rem;">人才识别 & Mapping</strong>
+        </div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="accordion-body">
+        <p style="font-size:0.82rem; color:#78716C; margin-bottom:8px;"><strong style="color:#C2410C;">回复核心：</strong>把「市场调研/用户分析/竞品分析」迁移过来，体现结构化能力</p>
+        <div style="font-size:0.84rem; line-height:1.7; color:#44403C;">
+          <div class="flow-step"><span class="step-num">1</span><span><strong>对齐「头部标准」</strong>：top seed是指论文顶会成果？业务落地带结果的经验？把「好人才」定义清楚</span></div>
+          <div class="flow-step"><span class="step-num">2</span><span><strong>圈定目标范围</strong>：从赛道头部公司、顶会作者、开源贡献者、行业社区活跃用户梳理人才池</span></div>
+          <div class="flow-step"><span class="step-num">3</span><span><strong>拆解判断维度 + 精细化mapping</strong>：按「硬技能、软技能、求职动机」三维打标签，梳理公开成果、行业评价</span></div>
+        </div>
+        <p style="font-size:0.82rem; color:#4D7C0F; margin-top:8px;"><strong>关键认知：</strong>「极致mapping」不是列名单，而是把每个目标人才的「强相关经历、求职痛点、可触达渠道」都梳理清楚</p>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="num-badge" style="background:rgba(14,116,144,0.1); color:#0E7490;">3</span>
+          <strong style="font-size:0.88rem;">需求拆解 & 画像精细化</strong>
+        </div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="accordion-body">
+        <p style="font-size:0.82rem; color:#78716C; margin-bottom:8px;"><strong style="color:#C2410C;">回复核心：</strong>体现「听懂模糊需求、拆解成可落地标准」的能力</p>
+        <div style="font-size:0.84rem; line-height:1.7; color:#44403C;">
+          <div class="flow-step"><span class="step-num">1</span><span><strong>对齐上下文</strong>：确认「团队均值强」的定义——业务指标？技术天花板？解决问题能力？</span></div>
+          <div class="flow-step"><span class="step-num">2</span><span><strong>拆解可落地标准</strong>：分「必须项 / 加分项 / 排除项」，如必须大厂/顶会post training经验</span></div>
+          <div class="flow-step"><span class="step-num">3</span><span><strong>反向验证</strong>：拿业务leader认可的内部员工/对标候选人，和画像对比校准</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C;">4</span>
+          <strong style="font-size:0.88rem;">Sourcing & 触达转化</strong>
+        </div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="accordion-body">
+        <p style="font-size:0.82rem; color:#78716C; margin-bottom:8px;"><strong style="color:#C2410C;">回复核心：</strong>迁移「外联/沟通/搞定难搞的人」的经历，体现主动沟通、换位思考</p>
+        <div class="quote-block" id="quote-4">
+          <button class="copy-btn" onclick="copyQuote('quote-4', this)">复制</button>
+          多渠道触达：LinkedIn、GitHub、行业社区，但关键是触达话术不能用通用模板。比如「我看到你在XX项目里做的XX优化，正好和我们团队在做的XX方向匹配，想和你聊聊」，让候选人觉得你真的了解他。
+          竞对PK时，薪资是基础，更重要的是戳中求职动机：想做前沿业务就讲技术投入，想解决落地问题就讲业务场景和资源。提前了解候选人当前工作的痛点，针对性讲团队优势。
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="num-badge" style="background:rgba(77,124,15,0.1); color:#4D7C0F;">5</span>
+          <strong style="font-size:0.88rem;">场景化问题解决</strong>
+        </div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="accordion-body">
+        <p style="font-size:0.82rem; color:#78716C; margin-bottom:8px;"><strong style="color:#C2410C;">回复核心：</strong>结构化拆解问题、抗压、主动破局</p>
+        <div style="font-size:0.84rem; line-height:1.7; color:#44403C;">
+          <div class="flow-step"><span class="step-num">1</span><span><strong>复盘画像和市场</strong>：画像太窄？拆解核心能力和辅助能力，放宽非核心要求</span></div>
+          <div class="flow-step"><span class="step-num">2</span><span><strong>拓展增量人才</strong>：顶会优秀博士、开源项目活跃贡献者、跨赛道可迁移人才</span></div>
+          <div class="flow-step"><span class="step-num">3</span><span><strong>同步业务预期</strong>：讲清市场现状，调整优先级，先找「潜力型」后续培养</span></div>
+          <div class="flow-step"><span class="step-num">4</span><span><strong>拓展触达渠道</strong>：行业会议、社区、内推、甚至和竞对员工聊了解人才分布</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="num-badge" style="background:rgba(14,116,144,0.1); color:#0E7490;">6</span>
+          <strong style="font-size:0.88rem;">项目闭环 & 复盘</strong>
+        </div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="accordion-body">
+        <p style="font-size:0.82rem; color:#78716C; margin-bottom:8px;"><strong style="color:#C2410C;">回复核心：</strong>用「STAR+复盘」讲过往项目，和招聘核心能力联系</p>
+        <div class="quote-block" id="quote-6">
+          <button class="copy-btn" onclick="copyQuote('quote-6', this)">复制</button>
+          <strong>Situation:</strong> 团队要找10个目标从业者做AI行业用户调研访谈，但目标用户很难触达。<br>
+          <strong>Task:</strong> 我的任务是找到并访谈这些用户，最后输出调研报告。<br>
+          <strong>Action:</strong> 先梳理目标用户特征做mapping，通过行业社区、朋友转介绍触达，针对不同用户设计不同沟通话术。<br>
+          <strong>Result:</strong> 成功访谈12个用户，报告被用于后续项目方向调整。<br>
+          <strong>复盘:</strong> 不管是调研还是招聘，「精准定位目标+换位思考触达+闭环落地」是关键。通用话术没人理→针对性调整→触达率大幅提升。
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <div class="accordion-header" onclick="toggleAccordion(this)">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C;">7</span>
+          <strong style="font-size:0.88rem;">自驱 & 学习提效</strong>
+        </div>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="accordion-body">
+        <p style="font-size:0.82rem; color:#78716C; margin-bottom:8px;"><strong style="color:#C2410C;">回复核心：</strong>体现「愿意学、会学、会用工具」</p>
+        <div class="quote-block" id="quote-7">
+          <button class="copy-btn" onclick="copyQuote('quote-7', this)">复制</button>
+          我快速学习的方法是「先搭框架再补细节」：先梳理AI赛道主要方向、核心岗位能力要求建立整体认知；然后通过行业报告、技术博客、从业者聊天补细节；最后结合团队业务重点学习。
+          AI在HR场景的提效应用：用AI快速梳理市场目标人才做mapping初筛；生成触达话术初稿再针对性修改；做候选人背景调研快速了解项目和成果。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 核心工作流程 ═══════════════ -->
+  <div id="workflow" class="col-4 reveal bento-card">
+    <div class="section-title">
+      <span class="icon" style="background:rgba(194,65,12,0.1); color:#C2410C;">▸</span>
+      招聘核心工作流程
+    </div>
+    <div style="display:flex; flex-direction:column; gap:0;">
+      <div class="flow-step">
+        <span class="step-num">1</span>
+        <div>
+          <strong style="font-size:0.85rem;">业务需求对接 & 画像精细化</strong>
+          <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">把「要最好的人」拆解成可落地的精准标准</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">2</span>
+        <div>
+          <strong style="font-size:0.85rem;">行业 & 人才Mapping</strong>
+          <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">系统性组织架构梳理、核心人才盘点</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">3</span>
+        <div>
+          <strong style="font-size:0.85rem;">主动寻源 & 候选人触达</strong>
+          <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">多渠道挖掘被动候选人，设计个性化话术</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">4</span>
+        <div>
+          <strong style="font-size:0.85rem;">人才识别 & 评估</strong>
+          <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">多维度评估：硬技能、软技能、潜力、动机</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">5</span>
+        <div>
+          <strong style="font-size:0.85rem;">候选人运营 & Offer转化</strong>
+          <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">全流程跟进：面试、反馈、谈判、竞对PK、长期保温</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">6</span>
+        <div>
+          <strong style="font-size:0.85rem;">招聘项目管理 & 问题解决</strong>
+          <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">平衡业务高要求与人才市场供给，推进全流程</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">7</span>
+        <div>
+          <strong style="font-size:0.85rem;">行业认知沉淀 & 效率提效</strong>
+          <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">跟踪AI赛道动态，探索AI工具优化流程</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 6大核心痛点 ═══════════════ -->
+  <div id="painpoints" class="col-8 reveal bento-card">
+    <div class="section-title">
+      <span class="icon" style="background:rgba(190,18,60,0.1); color:#BE123C;">⚡</span>
+      6大招聘核心痛点
+      <span style="font-size:0.75rem; color:#A8A29E; font-weight:400; margin-left:auto;">面试官反复考察的核心矛盾</span>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:12px;">
+      <div class="pain-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span style="font-size:1rem;">🎯</span>
+          <strong style="font-size:0.88rem; color:#BE123C;">需求模糊 vs 预期管理</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">业务只提「要最好的人」不给具体标准，预期和市场供给严重不符，画像不准方向跑偏</p>
+      </div>
+      <div class="pain-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span style="font-size:1rem;">💎</span>
+          <strong style="font-size:0.88rem; color:#BE123C;">人才稀缺 vs 高要求</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">AI顶级人才存量极少，锁定在头部公司，无主动求职意愿，人才池快速枯竭</p>
+      </div>
+      <div class="pain-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span style="font-size:1rem;">🔒</span>
+          <strong style="font-size:0.88rem; color:#BE123C;">被动候选人触达难</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">顶级人才不缺offer，对陌生触达高度抵触，多家竞品争抢，薪酬PK激烈</p>
+      </div>
+      <div class="pain-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span style="font-size:1rem;">🔍</span>
+          <strong style="font-size:0.88rem; color:#BE123C;">高潜人才识别难</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">如何判断无工作经验的顶会博士的落地能力和成长潜力，避免招错浪费稀缺HC</p>
+      </div>
+      <div class="pain-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span style="font-size:1rem;">⏱</span>
+          <strong style="font-size:0.88rem; color:#BE123C;">效率 vs 质量矛盾</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">业务节奏快、交付压力大，要求快速出结果但不能降低人才质量标准</p>
+      </div>
+      <div class="pain-card">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span style="font-size:1rem;">🔄</span>
+          <strong style="font-size:0.88rem; color:#BE123C;">行业迭代快 vs 认知滞后</strong>
+        </div>
+        <p style="font-size:0.8rem; color:#57534E; line-height:1.6;">AI技术方向迭代极快，招聘者不懂行业就无法和业务同频，无法和顶级候选人对话</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 5大情景Case ═══════════════ -->
+  <div id="cases" class="col-12 reveal">
+    <div class="bento-card" style="padding:0; overflow:hidden;">
+      <div style="padding:28px 28px 0;">
+        <div class="section-title" style="margin-bottom:4px;">
+          <span class="icon" style="background:rgba(194,65,12,0.1); color:#C2410C;">★</span>
+          5大情景Case高分话术
+        </div>
+        <p style="font-size:0.82rem; color:#78716C; margin-bottom:20px;">万能公式：<strong style="color:#C2410C;">先拆解根因 → 定核心原则 → 给「短期应急+长期闭环」分层方案 → 补风险预案</strong></p>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(380px,1fr)); gap:0;">
+
+        <!-- Case 1 -->
+        <div class="case-card" style="border-radius:0; border:none; border-right:1px solid rgba(0,0,0,0.04); border-bottom:1px solid rgba(0,0,0,0.04);">
+          <div class="case-header" onclick="toggleCase(this)">
+            <span class="num-badge" style="background:linear-gradient(135deg,#C2410C,#EA580C); color:white; border-radius:8px; width:28px; height:28px; font-size:0.8rem;">1</span>
+            <div style="flex:1; min-width:0;">
+              <strong style="font-size:0.92rem;">怎么判断 top seed？</strong>
+              <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">先对齐标尺→分层验证→交叉确认</p>
+            </div>
+            <svg class="case-chevron" style="transition:transform 0.3s; color:#A8A29E;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="case-body">
+            <div class="case-body-inner">
+              <div style="font-size:0.84rem; line-height:1.8; color:#44403C;">
+                <p><strong style="color:#C2410C;">核心：</strong>top seed不是「简历好看的人」，而是<strong>能给业务带来不可替代核心增量的人</strong></p>
+                <div style="margin:10px 0; display:flex; flex-direction:column; gap:6px;">
+                  <div style="display:flex; gap:6px; align-items:flex-start;">
+                    <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C; font-size:0.65rem;">1</span>
+                    <span><strong>和业务对齐「top」定义</strong>：是解决卡脖子难题？从0到1搭新方向？还是行业顶尖技术沉淀？</span>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:flex-start;">
+                    <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C; font-size:0.65rem;">2</span>
+                    <span><strong>硬实力标尺</strong>（满足≥2项）：顶会一作、头部公司核心项目落地、开源核心维护者、稀缺技术掌握者</span>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:flex-start;">
+                    <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C; font-size:0.65rem;">3</span>
+                    <span><strong>软实力甄别</strong>：问题拆解、跨团队协作、抗压能力、自驱成长型思维</span>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:flex-start;">
+                    <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C; font-size:0.65rem;">4</span>
+                    <span><strong>动机匹配</strong>：核心诉求是否和团队发展方向、文化氛围契合</span>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:flex-start;">
+                    <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C; font-size:0.65rem;">5</span>
+                    <span><strong>交叉验证</strong>：背调、行业口碑访谈、项目合作方反馈</span>
+                  </div>
+                </div>
+              </div>
+              <div class="warning-box" style="margin-top:10px;">
+                <span>⚠</span>
+                <span>不能只说「看学历、看大厂背景、看顶会数量」，显得只会看表面没有深度甄别能力</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 2 -->
+        <div class="case-card" style="border-radius:0; border:none; border-right:1px solid rgba(0,0,0,0.04); border-bottom:1px solid rgba(0,0,0,0.04);">
+          <div class="case-header" onclick="toggleCase(this)">
+            <span class="num-badge" style="background:linear-gradient(135deg,#4D7C0F,#65A30D); color:white; border-radius:8px; width:28px; height:28px; font-size:0.8rem;">2</span>
+            <div style="flex:1; min-width:0;">
+              <strong style="font-size:0.92rem;">怎么找到 top seed？</strong>
+              <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">精准触达而非广撒网，3级寻源体系</p>
+            </div>
+            <svg class="case-chevron" style="transition:transform 0.3s; color:#A8A29E;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="case-body">
+            <div class="case-body-inner">
+              <div style="font-size:0.84rem; line-height:1.8; color:#44403C;">
+                <p><strong style="color:#4D7C0F;">核心：</strong>top seed 99%是被动候选人，不会海投简历</p>
+                <p style="margin-top:8px;"><strong>3级寻源体系：</strong></p>
+                <div style="margin:8px 0; display:flex; flex-direction:column; gap:6px;">
+                  <div style="padding:8px 12px; background:rgba(77,124,15,0.04); border-radius:8px;">
+                    <strong>① 圈定核心池子</strong><br>
+                    <span style="font-size:0.82rem; color:#57534E;">产业端：目标方向头部公司组织架构锁定骨干<br>学术端：顶会论文作者、顶尖高校AI实验室<br>社区端：GitHub核心贡献者、技术社群活跃用户<br>行业端：顶级峰会、闭门研讨会嘉宾</span>
+                  </div>
+                  <div style="padding:8px 12px; background:rgba(77,124,15,0.04); border-radius:8px;">
+                    <strong>② 分层渗透触达</strong><br>
+                    <span style="font-size:0.82rem; color:#57534E;">优先级1：内推+转介绍（转化率高10倍+）<br>优先级2：个性化精准触达（结合候选人经历定制话术）<br>优先级3：内容运营（行业分享/技术直播吸引关注）</span>
+                  </div>
+                  <div style="padding:8px 12px; background:rgba(77,124,15,0.04); border-radius:8px;">
+                    <strong>③ 长期人才池</strong><br>
+                    <span style="font-size:0.82rem; color:#57534E;">按方向/能力/意愿分层保温，定期同步行业动态和团队进展</span>
+                  </div>
+                </div>
+              </div>
+              <div class="warning-box" style="margin-top:10px;">
+                <span>⚠</span>
+                <span>不能只说「用LinkedIn、BOSS直聘、GitHub找」，显得只有基础执行能力</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 3 -->
+        <div class="case-card" style="border-radius:0; border:none; border-bottom:1px solid rgba(0,0,0,0.04);">
+          <div class="case-header" onclick="toggleCase(this)">
+            <span class="num-badge" style="background:linear-gradient(135deg,#0E7490,#06B6D4); color:white; border-radius:8px; width:28px; height:28px; font-size:0.8rem;">3</span>
+            <div style="flex:1; min-width:0;">
+              <strong style="font-size:0.92rem;">业务push推不出人怎么办？</strong>
+              <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">压力面核心题，先拆根因再分层解决</p>
+            </div>
+            <svg class="case-chevron" style="transition:transform 0.3s; color:#A8A29E;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="case-body">
+            <div class="case-body-inner">
+              <div style="font-size:0.84rem; line-height:1.8; color:#44403C;">
+                <p><strong style="color:#0E7490;">核心：</strong>不盲目加量，先拆根因，分「紧急止损→中期优化→长期闭环」三步</p>
+                <div style="margin:10px 0; display:flex; flex-direction:column; gap:8px;">
+                  <div style="padding:10px 14px; background:rgba(14,116,144,0.04); border-radius:10px;">
+                    <strong style="color:#0E7490;">Step 1 紧急止损</strong><br>
+                    <span style="font-size:0.82rem;">拉取招聘数据+和业务深度复盘，定位根因：画像问题？池子问题？预期问题？流程问题？</span>
+                  </div>
+                  <div style="padding:10px 14px; background:rgba(14,116,144,0.04); border-radius:10px;">
+                    <strong style="color:#0E7490;">Step 2 针对性优化</strong><br>
+                    <span style="font-size:0.82rem;">画像不准→用淘汰案例反向校准<br>池子不对→拓展创业团队+学术圈高潜<br>预期不匹配→输出mapping报告用数据管理预期<br>流程慢→合并轮次加快反馈</span>
+                  </div>
+                  <div style="padding:10px 14px; background:rgba(14,116,144,0.04); border-radius:10px;">
+                    <strong style="color:#0E7490;">Step 3 长期闭环</strong><br>
+                    <span style="font-size:0.82rem;">建立「每周招聘进度同步机制」，提前搭建长期人才池做前置储备</span>
+                  </div>
+                </div>
+              </div>
+              <div class="warning-box" style="margin-top:10px;">
+                <span>⚠</span>
+                <span>绝对不能说「业务要求太高了根本找不到人」——直接暴露没有解决问题能力且把业务放在对立面</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 4 -->
+        <div class="case-card" style="border-radius:0; border:none; border-right:1px solid rgba(0,0,0,0.04);">
+          <div class="case-header" onclick="toggleCase(this)">
+            <span class="num-badge" style="background:linear-gradient(135deg,#C2410C,#EA580C); color:white; border-radius:8px; width:28px; height:28px; font-size:0.8rem;">4</span>
+            <div style="flex:1; min-width:0;">
+              <strong style="font-size:0.92rem;">人都扒过了业务还是不满意？</strong>
+              <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">极端压力升级，考察破局+逆向思维</p>
+            </div>
+            <svg class="case-chevron" style="transition:transform 0.3s; color:#A8A29E;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="case-body">
+            <div class="case-body-inner">
+              <div style="font-size:0.84rem; line-height:1.8; color:#44403C;">
+                <p><strong style="color:#C2410C;">核心：</strong>「重新校准→破圈拓展→预期管理」三维度破局</p>
+                <div style="margin:10px 0; display:flex; flex-direction:column; gap:6px;">
+                  <div style="display:flex; gap:6px; align-items:flex-start;">
+                    <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C; font-size:0.65rem;">1</span>
+                    <span><strong>反向校准</strong>：把所有被淘汰候选人拉清单，和业务逐人复盘淘汰原因，重新定义「合适的人」</span>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:flex-start;">
+                    <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C; font-size:0.65rem;">2</span>
+                    <span><strong>破圈拓展增量人才池</strong>：跨赛道可迁移人才、学术圈高潜博士、海外华人核心人才</span>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:flex-start;">
+                    <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C; font-size:0.65rem;">3</span>
+                    <span><strong>数据做预期管理</strong>：输出极致细化mapping报告，给业务2套方案（极致高标准 vs 核心能力优先）让业务做选择</span>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:flex-start;">
+                    <span class="num-badge" style="background:rgba(194,65,12,0.1); color:#C2410C; font-size:0.65rem;">4</span>
+                    <span><strong>前置储备</strong>：优质候选人纳入长期人才池持续保温维护</span>
+                  </div>
+                </div>
+              </div>
+              <div class="warning-box" style="margin-top:10px;">
+                <span>⚠</span>
+                <span>不能说「市场上没有这样的人了」——显得已经放弃，没有破局思维</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case 5 -->
+        <div class="case-card" style="border-radius:0; border:none; grid-column: span 2;">
+          <div class="case-header" onclick="toggleCase(this)">
+            <span class="num-badge" style="background:linear-gradient(135deg,#4D7C0F,#65A30D); color:white; border-radius:8px; width:28px; height:28px; font-size:0.8rem;">5</span>
+            <div style="flex:1; min-width:0;">
+              <strong style="font-size:0.92rem;">竞对等着开薪资PK，怎么吸引候选人？</strong>
+              <p style="font-size:0.78rem; color:#78716C; margin-top:2px;">跳出薪资内卷，用差异化价值建立竞争壁垒</p>
+            </div>
+            <svg class="case-chevron" style="transition:transform 0.3s; color:#A8A29E;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="case-body">
+            <div class="case-body-inner">
+              <div style="font-size:0.84rem; line-height:1.8; color:#44403C;">
+                <p><strong style="color:#4D7C0F;">核心：</strong>top人才不只为钱跳槽，薪资是门槛不是决策因素。先洞察核心诉求，再用差异化价值打动</p>
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:10px; margin:12px 0;">
+                  <div style="padding:12px 14px; background:rgba(77,124,15,0.04); border-radius:10px;">
+                    <strong>① 洞察核心诉求</strong><br>
+                    <span style="font-size:0.82rem; color:#57534E;">想要技术自主权？前沿方向？成长空间？稳定氛围？长期回报？找到决策关键</span>
+                  </div>
+                  <div style="padding:12px 14px; background:rgba(77,124,15,0.04); border-radius:10px;">
+                    <strong>② 传递差异化价值</strong><br>
+                    <span style="font-size:0.82rem; color:#57534E;">技术自主权→讲决策权限；行业影响力→讲开源生态；成长→讲发展规划；氛围→讲扁平文化</span>
+                  </div>
+                  <div style="padding:12px 14px; background:rgba(77,124,15,0.04); border-radius:10px;">
+                    <strong>③ 灵活薪酬兜底</strong><br>
+                    <span style="font-size:0.82rem; color:#57534E;">不单纯比base，做灵活薪酬包：重长期→提高股权比例；重短期→优化base+年终结构</span>
+                  </div>
+                  <div style="padding:12px 14px; background:rgba(77,124,15,0.04); border-radius:10px;">
+                    <strong>④ 长期信任维护</strong><br>
+                    <span style="font-size:0.82rem; color:#57534E;">不贬低竞对，客观对比；安排和团队leader/未来同事深度交流，建立信任</span>
+                  </div>
+                </div>
+              </div>
+              <div class="warning-box" style="margin-top:10px;">
+                <span>⚠</span>
+                <span>不能说「那我们开比竞对更高的薪资」——显得没有核心竞争力只会砸钱</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 黄金法则 ═══════════════ -->
+  <div id="rules" class="col-8 reveal bento-card">
+    <div class="section-title">
+      <span class="icon" style="background:rgba(194,65,12,0.1); color:#C2410C;">✦</span>
+      压力面黄金法则
+    </div>
+    <div style="display:flex; flex-direction:column; gap:0;">
+      <div class="rule-item">
+        <span class="num-badge" style="background:linear-gradient(135deg,#C2410C,#EA580C); color:white;">1</span>
+        <div>
+          <strong style="font-size:0.9rem;">先稳情绪，再给方案</strong>
+          <p style="font-size:0.82rem; color:#57534E; margin-top:2px;">压力面看的是高压下的逻辑能力，哪怕没经验也别慌，先拆问题再给结构化思路</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <span class="num-badge" style="background:linear-gradient(135deg,#4D7C0F,#65A30D); color:white;">2</span>
+        <div>
+          <strong style="font-size:0.9rem;">永远站在业务的角度，而非对立面</strong>
+          <p style="font-size:0.82rem; color:#57534E; margin-top:2px;">定位自己是「业务的人才战略伙伴」而不是被动执行的招聘专员，绝对不要抱怨业务push</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <span class="num-badge" style="background:linear-gradient(135deg,#0E7490,#06B6D4); color:white;">3</span>
+        <div>
+          <strong style="font-size:0.9rem;">没有经验就讲可迁移的能力</strong>
+          <p style="font-size:0.82rem; color:#57534E; margin-top:2px;">用项目管理、用户调研、外联沟通的经历证明能力：「之前遇到类似的deadline紧要求高的情况，用XX思路解决」</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <span class="num-badge" style="background:linear-gradient(135deg,#C2410C,#EA580C); color:white;">4</span>
+        <div>
+          <strong style="font-size:0.9rem;">永远给「短期+长期」方案</strong>
+          <p style="font-size:0.82rem; color:#57534E; margin-top:2px;">短期体现快速解决问题缓解压力，长期体现全局思维能闭环解决根本问题</p>
+        </div>
+      </div>
+      <div class="rule-item">
+        <span class="num-badge" style="background:linear-gradient(135deg,#4D7C0F,#65A30D); color:white;">5</span>
+        <div>
+          <strong style="font-size:0.9rem;">不说绝对的话，留好风险预案</strong>
+          <p style="font-size:0.82rem; color:#57534E; margin-top:2px;">不说「我一定能搞定」，而是「我会用XX思路解决，如果遇到XX情况，我会用XX预案调整」</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ 面试Tips ═══════════════ -->
+  <div class="col-4 reveal bento-card" style="background:linear-gradient(135deg, rgba(247,254,231,0.6) 0%, rgba(255,247,237,0.6) 100%);">
+    <div class="section-title">
+      <span class="icon" style="background:rgba(77,124,15,0.1); color:#4D7C0F;">✧</span>
+      面试关键Tips
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        <span style="color:#C2410C; font-size:0.9rem; flex-shrink:0;">✓</span>
+        <span style="font-size:0.84rem; color:#44403C; line-height:1.6;"><strong>纠正认知</strong>：高端招聘不是打杂的，是「懂业务的复合角色」</span>
+      </div>
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        <span style="color:#4D7C0F; font-size:0.9rem; flex-shrink:0;">✓</span>
+        <span style="font-size:0.84rem; color:#44403C; line-height:1.6;"><strong>面试本质</strong>：证明你有岗位需要的能力，而非证明你做过一模一样的事</span>
+      </div>
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        <span style="color:#0E7490; font-size:0.9rem; flex-shrink:0;">✓</span>
+        <span style="font-size:0.84rem; color:#44403C; line-height:1.6;"><strong>业务视角</strong>：不管是HR还是其他岗位，站在业务角度看问题才是核心竞争力</span>
+      </div>
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        <span style="color:#C2410C; font-size:0.9rem; flex-shrink:0;">✓</span>
+        <span style="font-size:0.84rem; color:#44403C; line-height:1.6;"><strong>结构化表达</strong>：万能公式 = 拆根因 → 定原则 → 短期+长期方案 → 风险预案</span>
+      </div>
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        <span style="color:#4D7C0F; font-size:0.9rem; flex-shrink:0;">✓</span>
+        <span style="font-size:0.84rem; color:#44403C; line-height:1.6;"><strong>可迁移能力</strong>：7个核心能力在任何岗位都是通用的核心竞争力</span>
+      </div>
+      <div style="display:flex; align-items:flex-start; gap:10px;">
+        <span style="color:#0E7490; font-size:0.9rem; flex-shrink:0;">✓</span>
+        <span style="font-size:0.84rem; color:#44403C; line-height:1.6;"><strong>不要说的话</strong>：「我不了解」「业务要求太高」「市场上没有人了」「我们开更高薪资」</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end bento-grid -->
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script>
+// Tab switching
+function switchTab(e, tabId) {
+  const parent = e.target.closest('.bento-card');
+  parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// Accordion
+function toggleAccordion(header) {
+  const body = header.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  // Close all in same container
+  header.closest('.bento-card').querySelectorAll('.accordion-body').forEach(b => b.classList.remove('open'));
+  header.closest('.bento-card').querySelectorAll('.accordion-header').forEach(h => h.classList.remove('open'));
+  if (!isOpen) {
+    body.classList.add('open');
+    header.classList.add('open');
+  }
+}
+
+// Case accordion
+function toggleCase(header) {
+  const card = header.closest('.case-card');
+  const body = card.querySelector('.case-body');
+  const chevron = header.querySelector('.case-chevron');
+  const isOpen = body.classList.contains('open');
+  // Close all cases in same container
+  header.closest('.bento-card').querySelectorAll('.case-body').forEach(b => b.classList.remove('open'));
+  header.closest('.bento-card').querySelectorAll('.case-chevron').forEach(c => c.style.transform = '');
+  if (!isOpen) {
+    body.classList.add('open');
+    chevron.style.transform = 'rotate(180deg)';
+  }
+}
+
+// Copy quote
+function copyQuote(id, btn) {
+  const el = document.getElementById(id);
+  const text = el.innerText.replace('复制', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '已复制 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '复制';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// Scroll reveal with IntersectionObserver
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Mouse glow follow on cards
+document.querySelectorAll('.bento-card').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
+    card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
+  });
+});
+</script>
+</body>
+</html>
