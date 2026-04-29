@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>面试备战笔记 | 贪玩游戏·HR实习生(招聘方向)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Noto Sans SC"', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans SC', system-ui, sans-serif; }
+        .bento-card {
+            background: rgba(255,255,255,0.72);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.015), 0 4px 12px rgba(0,0,0,0.035), 0 8px 28px rgba(0,0,0,0.055);
+            transition: transform 0.35s cubic-bezier(.4,0,.2,1), box-shadow 0.35s cubic-bezier(.4,0,.2,1);
+        }
+        .bento-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.025), 0 8px 22px rgba(0,0,0,0.055), 0 18px 44px rgba(0,0,0,0.085);
+        }
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes grad { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+        .anim { animation: fadeInUp .6s ease-out both; }
+        .hero-grad { background:linear-gradient(-45deg,#D04830,#E9A23B,#2AA198,#E8634A); background-size:400% 400%; animation:grad 10s ease infinite; }
+        .hl { background:linear-gradient(120deg,rgba(233,162,59,.18) 0%,rgba(233,162,59,.08) 100%); padding:1px 6px; border-radius:4px; }
+        .hl-c { background:linear-gradient(120deg,rgba(232,99,74,.14) 0%,rgba(232,99,74,.04) 100%); padding:1px 6px; border-radius:4px; }
+        .hl-t { background:linear-gradient(120deg,rgba(42,161,152,.14) 0%,rgba(42,161,152,.04) 100%); padding:1px 6px; border-radius:4px; }
+        .tag { display:inline-block; padding:3px 12px; border-radius:20px; font-size:12px; font-weight:500; }
+        .section-icon { width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+        ::-webkit-scrollbar { width:6px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(0,0,0,.12); border-radius:3px; }
+        .qa-toggle { cursor:pointer; user-select:none; }
+        .qa-body { max-height:0; overflow:hidden; transition:max-height .45s cubic-bezier(.4,0,.2,1), opacity .3s ease; opacity:0; }
+        .qa-body.open { max-height:800px; opacity:1; }
+        .arrow { transition:transform .3s ease; display:inline-block; }
+        .arrow.rotated { transform:rotate(90deg); }
+        .mapping-row { display:grid; grid-template-columns: 1fr 1.2fr 1.5fr; gap:8px; padding:12px 0; border-bottom:1px solid rgba(0,0,0,.05); align-items:start; }
+        .mapping-row:last-child { border-bottom:none; }
+        @media print { .bento-card { break-inside:avoid; box-shadow:none; border:1px solid #e5e5e5; } .hero-grad { animation:none; } body { background:#fff; } }
+    </style>
+</head>
+<body class="min-h-screen" style="background:linear-gradient(135deg,#FFF8F0 0%,#FFF2E8 40%,#F0F7F5 100%);">
+<div class="max-w-7xl mx-auto px-4 py-6 md:px-8 md:py-10">
+
+    <!-- HERO -->
+    <header class="hero-grad rounded-3xl p-8 md:p-12 text-white mb-5 anim relative overflow-hidden">
+        <div class="absolute inset-0 bg-black/5"></div>
+        <div class="relative z-10">
+            <div class="flex flex-wrap items-center gap-2 mb-5">
+                <span class="tag bg-white/20 text-white backdrop-blur-sm">面试备战</span>
+                <span class="tag bg-white/20 text-white backdrop-blur-sm">招聘方向</span>
+                <span class="tag bg-white/20 text-white backdrop-blur-sm">广州</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black mb-2 tracking-tight">贪玩游戏 · HR实习生</h1>
+            <p class="text-white/75 text-base md:text-lg mb-6">面试官：<span class="text-white font-medium">江蕾</span> · 招聘负责人 &nbsp;|&nbsp; 150–200元/天 &nbsp;|&nbsp; 4天/周 · 3个月+</p>
+            <div class="flex flex-wrap gap-3">
+                <div class="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3"><div class="text-white/60 text-xs mb-0.5">出勤</div><div class="text-xl font-bold">5天全勤</div></div>
+                <div class="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3"><div class="text-white/60 text-xs mb-0.5">时长</div><div class="text-xl font-bold">6个月+</div></div>
+                <div class="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3"><div class="text-white/60 text-xs mb-0.5">到岗</div><div class="text-xl font-bold">一周内</div></div>
+                <div class="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3"><div class="text-white/60 text-xs mb-0.5">届数</div><div class="text-xl font-bold">27届</div></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- BENTO GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <!-- 1. 个人速览 -->
+        <div class="bento-card anim" style="animation-delay:.1s">
+            <div class="flex items-center gap-2.5 mb-5">
+                <div class="section-icon bg-[#E8634A]/10">👤</div>
+                <h2 class="text-lg font-bold text-gray-800">个人速览</h2>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <div class="text-xs text-gray-400 uppercase tracking-widest mb-1">学历</div>
+                    <div class="text-sm font-semibold text-gray-800">广外应用心理学硕士（人资方向）</div>
+                    <div class="text-xs text-gray-500 mt-0.5">江西中医药大学 · 应用心理学（本科）</div>
+                </div>
+                <div class="border-t border-gray-100 pt-3">
+                    <div class="text-xs text-gray-400 uppercase tracking-widest mb-2">核心数据</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-[#E8634A]/5 rounded-xl p-2.5 text-center"><div class="text-2xl font-black text-[#E8634A]">80+</div><div class="text-[11px] text-gray-500 mt-0.5">一对一沟通</div></div>
+                        <div class="bg-[#E9A23B]/5 rounded-xl p-2.5 text-center"><div class="text-2xl font-black text-[#E9A23B]">130</div><div class="text-[11px] text-gray-500 mt-0.5">岗位说明书</div></div>
+                        <div class="bg-[#2AA198]/5 rounded-xl p-2.5 text-center"><div class="text-2xl font-black text-[#2AA198]">5000+</div><div class="text-[11px] text-gray-500 mt-0.5">数据分析</div></div>
+                        <div class="bg-rose-50 rounded-xl p-2.5 text-center"><div class="text-2xl font-black text-rose-400">CET-6</div><div class="text-[11px] text-gray-500 mt-0.5">英语六级</div></div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 pt-3">
+                    <div class="text-xs text-gray-400 uppercase tracking-widest mb-2">工具</div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="tag bg-gray-100 text-gray-600">Excel</span>
+                        <span class="tag bg-gray-100 text-gray-600">SPSS</span>
+                        <span class="tag bg-gray-100 text-gray-600">飞书</span>
+                        <span class="tag bg-gray-100 text-gray-600">Office</span>
+                        <span class="tag bg-[#E8634A]/10 text-[#E8634A]">小红书运营</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 人设定位 + 自我介绍 -->
+        <div class="bento-card anim md:col-span-2 lg:col-span-2" style="animation-delay:.15s">
+            <div class="flex items-center gap-2.5 mb-5">
+                <div class="section-icon bg-[#E9A23B]/10">🎯</div>
+                <h2 class="text-lg font-bold text-gray-800">人设定位 · 30秒自我介绍</h2>
+            </div>
+            <!-- 人设 -->
+            <div class="bg-gradient-to-r from-[#E8634A]/5 to-[#E9A23B]/5 rounded-2xl p-4 mb-4 border border-[#E8634A]/10">
+                <div class="text-xs font-semibold text-[#E8634A] uppercase tracking-widest mb-1.5">你的面试人设</div>
+                <p class="text-sm text-gray-700 leading-relaxed">
+                    <span class="hl-c font-medium">人资方向背景扎实</span>，<span class="hl">岗位理解和数据整理能力强</span>，沟通跟进经验多。虽然招聘实操还需要积累，但 <span class="hl-t">能稳定投入、上手快、不排斥重复执行</span>。
+                </p>
+            </div>
+            <!-- 自我介绍 -->
+            <div class="mb-3">
+                <div class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">推荐版本（30秒）</div>
+                <div class="bg-white/60 rounded-2xl p-4 text-sm text-gray-700 leading-relaxed border border-gray-100">
+                    面试官好，我叫吴春波，<span class="hl font-medium">广外应用心理学硕士在读，人资方向，27届</span>，目前在广州，<span class="hl font-medium">每周可到岗5天，能稳定实习6个月以上</span>。<br><br>
+                    我过往主要有三类相关经历：<br>
+                    <span class="hl-c font-medium">① 岗位分析</span>——做过管理者访谈、130份岗位说明书、人才画像整理<br>
+                    <span class="hl font-medium">② 数据分析</span>——SPSS/Excel做过大量数据整理，数据透视和基础统计比较熟<br>
+                    <span class="hl-t font-medium">③ 沟通跟进</span>——80多次一对一沟通，做过意向识别和持续跟进<br><br>
+                    <span class="text-gray-500">虽然还没独立负责过招聘全流程，但对JD理解、简历筛选、候选人沟通比较感兴趣，希望在实操中尽快上手。</span>
+                </div>
+            </div>
+            <div class="text-xs text-gray-400 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#E9A23B]"></span>
+                开场紧张可用：去掉第二段细节，只保留「三个方向+总结」即可
+            </div>
+        </div>
+
+        <!-- 3. JD能力映射 -->
+        <div class="bento-card anim md:col-span-2 lg:col-span-3" style="animation-delay:.2s">
+            <div class="flex items-center gap-2.5 mb-5">
+                <div class="section-icon bg-[#2AA198]/10">🔗</div>
+                <h2 class="text-lg font-bold text-gray-800">JD要求 ↔ 我的经历 · 能力映射</h2>
+                <span class="tag bg-[#E8634A]/10 text-[#E8634A] ml-auto">核心准备</span>
+            </div>
+            <div class="overflow-x-auto">
+                <div class="min-w-[600px]">
+                    <div class="mapping-row text-xs text-gray-400 font-semibold uppercase tracking-widest" style="border-bottom:2px solid rgba(0,0,0,.08);">
+                        <div>JD要求</div><div>我的对标</div><div>面试怎么说</div>
+                    </div>
+                    <div class="mapping-row">
+                        <div class="text-sm font-medium text-gray-800">简历筛选、候选人邀约、面试安排</div>
+                        <div class="text-sm text-gray-600">80+次一对一沟通<br>130份JD撰写经验</div>
+                        <div class="text-sm text-gray-600">能拆JD建筛选标准；电话沟通和跟进节奏比较熟悉</div>
+                    </div>
+                    <div class="mapping-row">
+                        <div class="text-sm font-medium text-gray-800">维护候选人数据库、更新记录</div>
+                        <div class="text-sm text-gray-600">SPSS/Excel<br>5000+份数据整理</div>
+                        <div class="text-sm text-gray-600">数据透视表和VLOOKUP熟练，候选人状态维护没问题</div>
+                    </div>
+                    <div class="mapping-row">
+                        <div class="text-sm font-medium text-gray-800">校招/内推/宣讲会宣传推广</div>
+                        <div class="text-sm text-gray-600">小红书账号运营</div>
+                        <div class="text-sm text-gray-600">做过人群触达和内容推广，校招宣传可以直接接</div>
+                    </div>
+                    <div class="mapping-row">
+                        <div class="text-sm font-medium text-gray-800">JD整理、招聘周报</div>
+                        <div class="text-sm text-gray-600">130份JD + 咨询项目交付</div>
+                        <div class="text-sm text-gray-600">JD撰写有基础，项目报告写过，招聘周报能接</div>
+                    </div>
+                    <div class="mapping-row">
+                        <div class="text-sm font-medium text-gray-800">心理学/人资专业优先</div>
+                        <div class="text-sm text-[#2AA198] font-medium">✓ 直接对口</div>
+                        <div class="text-sm text-gray-600">广外应用心理学硕士（人资方向）</div>
+                    </div>
+                    <div class="mapping-row" style="background:rgba(232,99,74,.04);border-radius:12px;padding:12px;margin:4px 0;">
+                        <div class="text-sm font-medium text-[#E8634A]">⚠️ 对游戏行业招聘有兴趣</div>
+                        <div class="text-sm text-gray-600">需针对性准备</div>
+                        <div class="text-sm text-gray-600">见下方「游戏行业」卡片——诚实 + 已做功课 + 可迁移</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Q: 没有完整招聘经验 -->
+        <div class="bento-card anim md:col-span-2 lg:col-span-2" style="animation-delay:.25s">
+            <div class="qa-toggle flex items-center gap-2.5" onclick="toggleQA(this)">
+                <div class="section-icon bg-[#E8634A]/10">🔥</div>
+                <h2 class="text-lg font-bold text-gray-800 flex-1">Q: 你没有完整做过招聘，为什么觉得自己能做？</h2>
+                <span class="tag bg-[#E8634A]/10 text-[#E8634A] text-[11px]">必问</span>
+                <span class="arrow text-gray-400 ml-1">▶</span>
+            </div>
+            <div class="qa-body open">
+                <div class="mt-5 space-y-4">
+                    <div class="bg-[#E8634A]/5 rounded-2xl p-4 border-l-4 border-[#E8634A]">
+                        <div class="text-xs font-bold text-[#E8634A] mb-1.5">核心策略：承认差距 + 三个不是从零的基础</div>
+                        <div class="text-sm text-gray-700">不要只说"我愿意学"——HR听到这句话=要从零带你。要证明你已经有 <span class="hl font-medium">可迁移的基础</span>。</div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex gap-3">
+                            <div class="w-7 h-7 rounded-full bg-[#E8634A]/10 text-[#E8634A] flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
+                            <div>
+                                <div class="text-sm font-semibold text-gray-800">岗位理解</div>
+                                <div class="text-sm text-gray-600 mt-0.5">做过130份JD + 管理者访谈，理解岗位职责、任职要求、能力标准 → 和招聘前期<span class="hl font-medium">理解JD、判断候选人匹配度</span>直接相关</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="w-7 h-7 rounded-full bg-[#E9A23B]/10 text-[#E9A23B] flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">2</div>
+                            <div>
+                                <div class="text-sm font-semibold text-gray-800">沟通跟进</div>
+                                <div class="text-sm text-gray-600 mt-0.5">80+次一对一沟通：了解情况 → 判断意向 → 记录信息 → 持续跟进 → 和<span class="hl font-medium">候选人沟通、邀约、反馈跟进</span>逻辑一样</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="w-7 h-7 rounded-full bg-[#2AA198]/10 text-[#2AA198] flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">3</div>
+                            <div>
+                                <div class="text-sm font-semibold text-gray-800">数据整理</div>
+                                <div class="text-sm text-gray-600 mt-0.5">SPSS/Excel做过5000+份数据分析 → <span class="hl-t font-medium">候选人状态维护、招聘数据跟进</span>能比较快上手</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-2xl p-4 text-sm text-gray-600 leading-relaxed">
+                        <strong class="text-gray-700">收尾句：</strong>"我承认在招聘实操上还需要积累，但我已经具备<span class="hl">岗位理解、沟通跟进和数据整理</span>三个基础能力，也能接受招聘里比较细碎、重复和高频沟通的工作节奏。"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Q: 为什么想做招聘 -->
+        <div class="bento-card anim" style="animation-delay:.3s">
+            <div class="qa-toggle flex items-center gap-2.5" onclick="toggleQA(this)">
+                <div class="section-icon bg-[#E9A23B]/10">💡</div>
+                <h2 class="text-base font-bold text-gray-800 flex-1">Q: 为什么想做招聘 / HR？</h2>
+                <span class="tag bg-[#E9A23B]/10 text-[#E9A23B] text-[11px]">高频</span>
+                <span class="arrow text-gray-400 ml-1">▶</span>
+            </div>
+            <div class="qa-body open">
+                <div class="mt-4 space-y-3">
+                    <div class="flex gap-2.5">
+                        <div class="w-2 h-2 rounded-full bg-[#E9A23B] mt-2 flex-shrink-0"></div>
+                        <div class="text-sm text-gray-700"><span class="font-semibold">专业方向契合</span>——岗位分析、人才评估、人才画像这些经历让我对<span class="hl">"人岗匹配"</span>比较感兴趣</div>
+                    </div>
+                    <div class="flex gap-2.5">
+                        <div class="w-2 h-2 rounded-full bg-[#E9A23B] mt-2 flex-shrink-0"></div>
+                        <div class="text-sm text-gray-700"><span class="font-semibold">能力模型匹配</span>——招聘既需要沟通，也需要判断和执行，和我做<span class="hl">岗位分析 + 一对一沟通 + 数据整理</span>的经历比较契合</div>
+                    </div>
+                    <div class="flex gap-2.5">
+                        <div class="w-2 h-2 rounded-full bg-[#E9A23B] mt-2 flex-shrink-0"></div>
+                        <div class="text-sm text-gray-700"><span class="font-semibold">长期意愿</span>——希望从招聘实习做起，打扎实基础，之后<span class="hl">长期往HR方向发展</span></div>
+                    </div>
+                    <div class="bg-amber-50/80 rounded-xl p-3 text-xs text-amber-700 mt-3">
+                        ⚠️ 不要只说"我专业对口"就结束——HR听到太多这种回答了。要加上<span class="font-semibold">具体经历 + 能力迁移</span>。
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Q: 游戏行业 -->
+        <div class="bento-card anim md:col-span-2 lg:col-span-2" style="animation-delay:.35s;border:1px solid rgba(232,99,74,.15);">
+            <div class="qa-toggle flex items-center gap-2.5" onclick="toggleQA(this)">
+                <div class="section-icon bg-[#E8634A]/10">🎮</div>
+                <h2 class="text-lg font-bold text-gray-800 flex-1">Q: 对游戏行业 / 互联网招聘有什么了解？</h2>
+                <span class="tag bg-[#E8634A] text-white text-[11px]">重点准备</span>
+                <span class="arrow text-gray-400 ml-1">▶</span>
+            </div>
+            <div class="qa-body open">
+                <div class="mt-5 space-y-4">
+                    <!-- 公司背景 -->
+                    <div class="bg-gradient-to-r from-[#E8634A]/5 to-[#E9A23B]/5 rounded-2xl p-4">
+                        <div class="text-xs font-bold text-[#E8634A] mb-2">🔍 贪玩游戏 · 背景速查</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
+                            <div>📍 <strong>定位：</strong>广州游戏公司，传奇类手游为主</div>
+                            <div>🎯 <strong>模式：</strong>重度买量（广告投放）+ 长线运营</div>
+                            <div>🏆 <strong>代表作：</strong>原始传奇、龙迹之城、天龙八部2等</div>
+                            <div>📢 <strong>出圈：</strong>"系兄弟就来砍我"等明星代言广告</div>
+                        </div>
+                    </div>
+                    <!-- 游戏行业招聘特点 -->
+                    <div>
+                        <div class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">游戏行业招聘特点</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div class="bg-white/60 rounded-xl p-3 text-center border border-gray-100">
+                                <div class="text-lg mb-1">⚡</div>
+                                <div class="text-sm font-semibold text-gray-800">节奏快</div>
+                                <div class="text-xs text-gray-500 mt-0.5">HC多，需要快速招人</div>
+                            </div>
+                            <div class="bg-white/60 rounded-xl p-3 text-center border border-gray-100">
+                                <div class="text-lg mb-1">🎭</div>
+                                <div class="text-sm font-semibold text-gray-800">岗位杂</div>
+                                <div class="text-xs text-gray-500 mt-0.5">研发/美术/运营/发行</div>
+                            </div>
+                            <div class="bg-white/60 rounded-xl p-3 text-center border border-gray-100">
+                                <div class="text-lg mb-1">🏃</div>
+                                <div class="text-sm font-semibold text-gray-800">抢人狠</div>
+                                <div class="text-xs text-gray-500 mt-0.5">候选人选择多，需快速跟进</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 回答策略 -->
+                    <div class="bg-[#E8634A]/5 rounded-2xl p-4 border-l-4 border-[#E8634A]">
+                        <div class="text-xs font-bold text-[#E8634A] mb-2">💡 回答策略（诚实 + 功课 + 可迁移）</div>
+                        <div class="text-sm text-gray-700 leading-relaxed space-y-2">
+                            <p>"说实话我不是重度游戏玩家，但我<span class="hl font-medium">提前了解了贪玩的业务</span>——主打传奇类手游，以买量营销和长线运营见长，原始传奇、龙迹之城这些产品我都查过。"</p>
+                            <p>"我觉得游戏行业招聘和传统行业最大的区别是<span class="hl font-medium">节奏更快、候选人跟进需要更及时</span>。我之前做80多次一对一沟通时也经历过高频率的跟进节奏，这个我可以适应。"</p>
+                            <p>"另外小红书运营的经验，做<span class="hl-t font-medium">校招宣传、内推活动推广</span>可以直接迁移过来。"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Q: 沟通推进案例 -->
+        <div class="bento-card anim" style="animation-delay:.4s">
+            <div class="qa-toggle flex items-center gap-2.5" onclick="toggleQA(this)">
+                <div class="section-icon bg-[#2AA198]/10">💬</div>
+                <h2 class="text-base font-bold text-gray-800 flex-1">Q: 你怎么和人沟通推进事情？</h2>
+                <span class="tag bg-[#2AA198]/10 text-[#2AA198] text-[11px]">高频</span>
+                <span class="arrow text-gray-400 ml-1">▶</span>
+            </div>
+            <div class="qa-body open">
+                <div class="mt-4 space-y-3">
+                    <div class="text-xs text-gray-400 font-semibold uppercase tracking-widest">素材：众学简快 · 用户运营</div>
+                    <div class="space-y-2 text-sm text-gray-700">
+                        <div class="flex gap-2"><span class="text-[#2AA198] font-bold">S</span><span>负责考研用户一对一沟通，了解备考阶段、目标院校、预算顾虑</span></div>
+                        <div class="flex gap-2"><span class="text-[#E8634A] font-bold">T</span><span>需要识别真实顾虑并推动决策，不是简单催单</span></div>
+                        <div class="flex gap-2"><span class="text-[#E9A23B] font-bold">A</span><span>直接推产品效果差 → 改为<span class="hl">先提问了解需求</span>（复习进度/目标难度/薄弱科目/预算）→ 记录关键信息 → 高意向用户持续跟进</span></div>
+                        <div class="flex gap-2"><span class="text-green-600 font-bold">R</span><span>推动部分用户完成付费转化</span></div>
+                    </div>
+                    <div class="bg-[#2AA198]/5 rounded-xl p-3 text-sm text-gray-600 border-l-3 border-[#2AA198]" style="border-left:3px solid #2AA198;">
+                        <strong class="text-[#2AA198]">迁移句：</strong>"候选人说'再想想'背后可能有其他顾虑——需要先识别再跟进，和用户运营的沟通逻辑一样。"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Q: 最有挑战的事 -->
+        <div class="bento-card anim" style="animation-delay:.45s">
+            <div class="qa-toggle flex items-center gap-2.5" onclick="toggleQA(this)">
+                <div class="section-icon bg-purple-100">⛰️</div>
+                <h2 class="text-base font-bold text-gray-800 flex-1">Q: 最有挑战性的一件事？</h2>
+                <span class="arrow text-gray-400 ml-1">▶</span>
+            </div>
+            <div class="qa-body open">
+                <div class="mt-4 space-y-3">
+                    <div class="text-xs text-gray-400 font-semibold uppercase tracking-widest">素材：白云山药企 · 130份岗位说明书</div>
+                    <div class="space-y-2 text-sm text-gray-700">
+                        <div class="flex gap-2"><span class="text-[#2AA198] font-bold">S</span><span>独立负责财务中心+生产中心共130份JD撰写</span></div>
+                        <div class="flex gap-2"><span class="text-[#E8634A] font-bold">T</span><span>信息量大，不同岗位不能套模板，资料来源复杂</span></div>
+                        <div class="flex gap-2"><span class="text-[#E9A23B] font-bold">A</span><span>统一结构 → 按职责/任务/资格/能力拆分 → <span class="hl">反复核对访谈记录</span> → 标注问题点 → 根据反馈修订</span></div>
+                        <div class="flex gap-2"><span class="text-green-600 font-bold">R</span><span>按时交付130份，经客户审核确认落地</span></div>
+                    </div>
+                    <div class="bg-purple-50 rounded-xl p-3 text-sm text-gray-600 border-l-3 border-purple-300" style="border-left:3px solid #C084FC;">
+                        <strong class="text-purple-500">迁移句：</strong>"招聘前提就是理解岗位——我能拆JD、建筛选标准，这130份就是训练。"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. Q: 优缺点 -->
+        <div class="bento-card anim" style="animation-delay:.5s">
+            <div class="qa-toggle flex items-center gap-2.5" onclick="toggleQA(this)">
+                <div class="section-icon bg-emerald-100">⚖️</div>
+                <h2 class="text-base font-bold text-gray-800 flex-1">Q: 优点和缺点？</h2>
+                <span class="arrow text-gray-400 ml-1">▶</span>
+            </div>
+            <div class="qa-body open">
+                <div class="mt-4 space-y-4">
+                    <div>
+                        <div class="text-xs font-bold text-emerald-600 mb-2">✅ 优点（优点 + 证据 + 对岗位有什么用）</div>
+                        <div class="space-y-2">
+                            <div class="bg-emerald-50/60 rounded-xl p-3 text-sm text-gray-700">
+                                <span class="hl-t font-semibold">信息整理和结构化</span>——130份JD + 大量数据整理 → 面对零散信息能快速归类
+                            </div>
+                            <div class="bg-emerald-50/60 rounded-xl p-3 text-sm text-gray-700">
+                                <span class="hl-t font-semibold">沟通有耐心</span>——80+次一对一 → 不排斥重复沟通，愿意持续推进
+                            </div>
+                            <div class="bg-emerald-50/60 rounded-xl p-3 text-sm text-gray-700">
+                                <span class="hl-t font-semibold">稳定性好</span>——每周5天，6个月+ → 能持续投入招聘执行
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-[#E8634A] mb-2">⚠️ 缺点（真实但可控 + 改进计划）</div>
+                        <div class="bg-[#E8634A]/5 rounded-xl p-3 text-sm text-gray-700">
+                            完整招聘实操经验还不够多。虽然做过岗位分析、沟通跟进，但<span class="hl-c font-medium">招聘全流程闭环</span>还需积累。<br><br>
+                            <strong>改进：</strong>会主动了解流程和JD拆解方式，<span class="hl">先做好基础执行</span>（候选人状态记录、邀约话术、面试安排），尽快熟悉流程再提升筛选判断能力。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. Q: 对招聘工作的理解 -->
+        <div class="bento-card anim" style="animation-delay:.55s">
+            <div class="qa-toggle flex items-center gap-2.5" onclick="toggleQA(this)">
+                <div class="section-icon bg-indigo-100">🧠</div>
+                <h2 class="text-base font-bold text-gray-800 flex-1">Q: 你对招聘工作的理解？</h2>
+                <span class="arrow text-gray-400 ml-1">▶</span>
+            </div>
+            <div class="qa-body open">
+                <div class="mt-4 space-y-3 text-sm text-gray-700">
+                    <p>招聘不是简单收简历，而是 <span class="hl font-medium">围绕岗位需求持续匹配人</span> 的过程：</p>
+                    <div class="space-y-2">
+                        <div class="flex gap-2 items-start">
+                            <span class="tag bg-[#E8634A]/10 text-[#E8634A] text-[11px] whitespace-nowrap mt-0.5">前期</span>
+                            <span>理解业务部门真实需要什么样的人，不能只看JD表面</span>
+                        </div>
+                        <div class="flex gap-2 items-start">
+                            <span class="tag bg-[#E9A23B]/10 text-[#E9A23B] text-[11px] whitespace-nowrap mt-0.5">中期</span>
+                            <span>简历筛选 → 电话沟通 → 面试安排，持续推进候选人</span>
+                        </div>
+                        <div class="flex gap-2 items-start">
+                            <span class="tag bg-[#2AA198]/10 text-[#2AA198] text-[11px] whitespace-nowrap mt-0.5">后期</span>
+                            <span>及时跟进反馈、维护候选人体验，通过数据看渠道效果和到岗情况</span>
+                        </div>
+                    </div>
+                    <div class="bg-indigo-50 rounded-xl p-3 text-xs text-indigo-700 mt-2">
+                        💡 加分句："对实习生来说，最重要的是<span class="font-semibold">执行细致、反馈及时、记录清楚</span>，同时不断积累对岗位和候选人的判断能力。"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 11. 反问环节 -->
+        <div class="bento-card anim" style="animation-delay:.6s">
+            <div class="flex items-center gap-2.5 mb-5">
+                <div class="section-icon bg-amber-100">❓</div>
+                <h2 class="text-lg font-bold text-gray-800">反问环节</h2>
+            </div>
+            <div class="space-y-3">
+                <div class="bg-white/60 rounded-xl p-3 text-sm text-gray-700 border border-gray-100">
+                    <span class="tag bg-[#E9A23B]/10 text-[#E9A23B] text-[11px] mb-1.5">问业务</span><br>
+                    "这个岗位前期主要支持哪些类型的岗位招聘？比如研发、美术、运营还是职能岗会更多？"
+                </div>
+                <div class="bg-white/60 rounded-xl p-3 text-sm text-gray-700 border border-gray-100">
+                    <span class="tag bg-[#2AA198]/10 text-[#2AA198] text-[11px] mb-1.5">问节奏</span><br>
+                    "如果加入，前两周最需要先熟悉什么？招聘流程、JD还是候选人沟通话术？"
+                </div>
+                <div class="bg-white/60 rounded-xl p-3 text-sm text-gray-700 border border-gray-100">
+                    <span class="tag bg-[#E8634A]/10 text-[#E8634A] text-[11px] mb-1.5">问期望</span><br>
+                    "比较看重实习生哪方面表现？邀约效率、沟通反馈、数据维护还是整体执行稳定性？"
+                </div>
+            </div>
+            <div class="text-xs text-gray-400 mt-3 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                别问工资和转正——问这三个会让HR觉得你在想怎么做好
+            </div>
+        </div>
+
+        <!-- 12. 避坑清单 -->
+        <div class="bento-card anim md:col-span-2 lg:col-span-2" style="animation-delay:.65s">
+            <div class="flex items-center gap-2.5 mb-5">
+                <div class="section-icon bg-rose-100">🚨</div>
+                <h2 class="text-lg font-bold text-gray-800">避坑清单</h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <div class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-2">✅ 要做的</div>
+                    <div class="space-y-2">
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-emerald-500 mt-0.5">●</span><span>说话自然，像跟同事聊天，不要背稿</span>
+                        </div>
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-emerald-500 mt-0.5">●</span><span>用<span class="hl">具体数字</span>和案例，不要空话</span>
+                        </div>
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-emerald-500 mt-0.5">●</span><span>主动把经历和招聘<span class="hl-t">连接</span>起来</span>
+                        </div>
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-emerald-500 mt-0.5">●</span><span>展现稳定性和执行力，不怕重复</span>
+                        </div>
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-emerald-500 mt-0.5">●</span><span>表达对游戏行业招聘的<span class="hl-c">真实兴趣</span></span>
+                        </div>
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-emerald-500 mt-0.5">●</span><span>每个STAR回答后加一句<span class="hl">迁移句</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-[#E8634A] uppercase tracking-widest mb-2">❌ 不要做的</div>
+                    <div class="space-y-2">
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-[#E8634A] mt-0.5">●</span><span>说"我愿意学习"但没有证据支撑</span>
+                        </div>
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-[#E8634A] mt-0.5">●</span><span>把自我介绍变成简历流水账</span>
+                        </div>
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-[#E8634A] mt-0.5">●</span><span>用AI味词：<span class="line-through">直接上手/有体感/全环节实操过</span></span>
+                        </div>
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-[#E8634A] mt-0.5">●</span><span>自曝短板："虽然没做过招聘实习"</span>
+                        </div>
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-[#E8634A] mt-0.5">●</span><span>编造没做过的经历（面试会被拆穿）</span>
+                        </div>
+                        <div class="flex gap-2 items-start text-sm text-gray-700">
+                            <span class="text-[#E8634A] mt-0.5">●</span><span>假装是游戏玩家（诚实比装懂好）</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 13. 临场速览 -->
+        <div class="bento-card anim md:col-span-2 lg:col-span-3" style="animation-delay:.7s;background:linear-gradient(135deg,rgba(255,255,255,.8) 0%,rgba(232,99,74,.04) 100%);">
+            <div class="flex items-center gap-2.5 mb-4">
+                <div class="section-icon bg-[#E8634A]/10">⚡</div>
+                <h2 class="text-lg font-bold text-gray-800">面试前 10 分钟速览</h2>
+                <span class="text-xs text-gray-400 ml-auto" style="animation:pulse 2s infinite;">考前再看一遍</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                <div class="bg-white/70 rounded-2xl p-3 text-center border border-gray-100">
+                    <div class="text-xs text-gray-400 mb-1">你是谁</div>
+                    <div class="text-sm font-bold text-gray-800">广外心理学硕士</div>
+                    <div class="text-xs text-gray-500">人资方向 · 27届</div>
+                </div>
+                <div class="bg-white/70 rounded-2xl p-3 text-center border border-gray-100">
+                    <div class="text-xs text-gray-400 mb-1">核心卖点</div>
+                    <div class="text-sm font-bold text-[#E8634A]">130份JD</div>
+                    <div class="text-sm font-bold text-[#E9A23B]">80次沟通</div>
+                    <div class="text-sm font-bold text-[#2AA198]">数据分析</div>
+                </div>
+                <div class="bg-white/70 rounded-2xl p-3 text-center border border-gray-100">
+                    <div class="text-xs text-gray-400 mb-1">关键态度</div>
+                    <div class="text-sm font-bold text-gray-800">能被马上用起来</div>
+                    <div class="text-xs text-gray-500">不排斥执行</div>
+                </div>
+                <div class="bg-white/70 rounded-2xl p-3 text-center border border-gray-100">
+                    <div class="text-xs text-gray-400 mb-1">面试官</div>
+                    <div class="text-sm font-bold text-gray-800">江蕾</div>
+                    <div class="text-xs text-gray-500">招聘负责人</div>
+                </div>
+                <div class="bg-white/70 rounded-2xl p-3 text-center border border-gray-100">
+                    <div class="text-xs text-gray-400 mb-1">公司</div>
+                    <div class="text-sm font-bold text-gray-800">贪玩游戏</div>
+                    <div class="text-xs text-gray-500">传奇类手游 · 广州</div>
+                </div>
+            </div>
+            <div class="mt-4 bg-[#E8634A]/5 rounded-2xl p-4 flex flex-col sm:flex-row gap-3">
+                <div class="flex-1">
+                    <div class="text-xs font-bold text-[#E8634A] mb-1">🎮 游戏行业回答模板</div>
+                    <div class="text-sm text-gray-700">"不是重度玩家，但了解贪玩业务 → 招聘节奏快我可以适应 → 小红书运营经验可迁移到校招推广"</div>
+                </div>
+                <div class="flex-1">
+                    <div class="text-xs font-bold text-[#2AA198] mb-1">🔗 每个回答都要加的迁移句</div>
+                    <div class="text-sm text-gray-700">"这个经历和招聘里的 <span class="hl-t">[具体环节]</span> 是一样的逻辑——<span class="hl">[具体连接]</span>"</div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /grid -->
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-gray-400 mt-8 mb-4">
+        面试备战笔记 · 贪玩游戏 HR实习生(招聘方向) · 吴春波 · 2026.04
+    </footer>
+
+</div><!-- /container -->
+
+<script>
+    // Toggle Q&A sections
+    function toggleQA(el) {
+        const body = el.nextElementSibling;
+        const arrow = el.querySelector('.arrow');
+        body.classList.toggle('open');
+        if (arrow) arrow.classList.toggle('rotated');
+    }
+
+    // Scroll animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.anim').forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+</script>
+</body>
+</html>
